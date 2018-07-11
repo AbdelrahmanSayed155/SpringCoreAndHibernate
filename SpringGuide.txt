@@ -1,0 +1,155 @@
+CRUD mean Create, read, update and delete   
+ why  spring  ?
+ - popular framework to build java apps  
+ - lightwight from j2ee   لانك تقدؤ تستخدم جزء منها فقط يعني لو بتستخدم spring jdbc  يبقي انت مختاح spring mvc 
+من الاخر تقدر تستخدم جزء معين من framework 
+ - have large helper classes 
+ - make enterprise is very easy
+ 
+ goal of spring 
+ 1- lightwight development with  on pojo plain old java object
+ 2- dependency injection 
+ 3- declarative programming with AOP
+ 
+ spring can ceate and amanage beans 
+  spring allow to develop aop by adding logging , secuirity  to declarative object 
+  
+  spring with Transaction data 
+   jdbc helper it reduce code with 50%
+   orm  integrate with jpa , hibernate and other tecnology need orm
+   jms sending async message for message ques so it have helper classes for messages brokers
+   
+   spring have modules as (spring data , spring batch , secuirity , cloud , webService ) and all these modules use spring core 
+   
+    Those Java EE applications used to be deployed to heavyweight application servers (websphere, weblogic, etc.), whereas Spring could be deployed to a lightweight web container like Tomcat or Jetty.
+ 
+ Inversion of control 
+ IOC
+ it design process of extranalizing the construction and management of objects
+ 
+ spring container 
+ - create and manage obgects inversion of control
+ - inject obgect's dependency  (dependency injection)
+
+
+configration in spring 
+- xml 
+- annotation
+- java sourse code 
+
+spring develop step 
+- create bean by xml 
+- create spring container  (Spring context ) context = new SpringContext("XmlFilhave beans ")
+-retrieve beans from contaner  
+
+dependecy injection 
+client delegates other code thr responsability of providing its dependency 
+dependencies is helper objects 
+
+- constructor injection 
+ class worker{
+    public worker(Tool tool){
+	}
+ 
+ }
+ so when we use xml must configure that we inject objects from xml 
+ 
+in spring boot 
+@Component
+public class Car {
+ 
+    @Autowired /// constructor injection 
+    public Car(Engine engine, Transmission transmission) {
+        this.engine = engine;
+        this.transmission = transmission;
+    }
+}
+
+- setter injection
+it depend that you call your setter method 
+must configer in xml than there is setter injection
+
+
+in spring boot
+@Component
+public class GreetingCollector {
+    private Greeting greeting;
+
+    /* This is how you do setter injection */
+    @Autowired
+    public void setGreeting(Greeting greeting) {
+        this.greeting = greeting;
+    }
+
+- inject lateral value 
+set value of string from xml config file 
+
+- can injuct  values from prperties file 
+-------------------------------------------------------
+
+beans life cycle 
+-
+scope is singletone scope 
+singleton that spring container create only one bean , catched in memory , all request is refrence to the same bean 
+
+can explict scope 
+ prtotype : it mean new instance in every request 
+  so it good for save state of data 
+  
+  so singleton against prototype 
+-----------
+in beans life cycle  we can implement init function in destory function 
+
+Annotation in java 
+special label / marker for java class 
+provide meta data for class
+
+in spring we can configure beans with annotations 
+spring container scan package and xtract beans from it 
+steps for using annotation 
+
+@autowired have responsabillty for inject component so 
+--- field injection  in this casses we don't need setter or constructor injection 
+@autowired 
+classname ref;
+
+field injection based in java reflection so it not good with some palt form  
+
+arrange best way to inject 
+constructor injection , seeter injection , feild injection 
+
+ when use @autowired with any way  may there is excption becuase beanId so we use @qualifier ("nameofclass or id name")
+ if you have more component implement interface can specify this class by set it name in @qualifier("NameofClassBean")
+
+ --- scope by default is singletone for beans and it cached and all ref ref to same bean 
+ @scope("singleton") 
+ @scope("prototype")  is diff object for each request 
+ 
+ @PostConstruct it annotated method wich sfrist start in bean 
+ @Predestroy    it 
+
+we can configure spring container by using  java sourse code  
+
+
+
+
+Spring MVC 
+
+farmework used for build web application 
+based in model view conroller pattern
+it built in spring core (ioc - di)
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+
+

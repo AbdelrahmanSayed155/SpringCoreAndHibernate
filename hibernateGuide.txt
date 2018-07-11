@@ -1,0 +1,267 @@
+frist download hibernate from hibernate.org 
+then copy required jar from downloaded file 
+then get hibernate.cfg.xml that hav configration of db 
+
+SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+SessionFactory is responsible for creating connection with database and managing other stuff, so creating sessionFactory is time consuming task. So I will say only one sessionFactory object should be created per Application, or in more better way one SeesionFactory per Database.
+		//Current Session - no need to close
+session currentSession = sessionFactory.getCurrentSession();
+
+		
+session in hibernate is channel oped through sessionFactory 
+someIt all depends on how you obtain the session.
+if you use sessionFactory.getCurrentSession(), you'll obtain a "current session" which is bound to the lifecycle of the transaction and will be automatically flushed and closed when the transaction ends (commit or rollback).
+if you decide to use sessionFactory.openSession(), you'll have to manage the session yourself and to flush and close it "manually".
+
+Hibernate Sessions
+Sessions are a Hibernate construct used to mediate connections with the database.
+
+The session opens a single database connection when it is created, and holds onto it until the session is closed. Every object that is loaded by Hibernate from the database is associated with the session, allowing Hibernate to automatically persist objects that are modified, and allowing Hibernate to implement functionality such as lazy-loading.
+
+
+
+
+
+
+As explained in this forum post, 1 and 2 are related. If you set hibernate.current_session_context_class to thread and then implement something like a servlet filter that opens the session - then you can access that session anywhere else by using the SessionFactory.getCurrentSession().
+
+SessionFactory.openSession() always opens a new session that you have to close once you are done with the operations. SessionFactory.getCurrentSession() returns a session bound to a context - you don't need to close this.
+
+
+
+
+
+Entity 
+java class mapped to db table 
+
+id generation stratege 
+1 . GenerationType.AUTO
+The GenerationType.AUTO is the default generation type and lets the persistence provider choose the generation strategy.
+If you use Hibernate as your persistence provider, 
+it selects a generation strategy based on the database specific dialect. 
+For most popular databases, it selects GenerationType.SEQUENCE which I will explain later.  
+
+GenerationType.IDENTITY
+The GenerationType.IDENTITY is the easiest to use but not the best one from a performance point of view.
+ It relies on an auto-incremented database column and lets the database generate a new value with each insert operation. 
+ From a database point of view, this is very efficient because the auto-increment columns are highly optimized, and it doesn’t require any additional statements.
+
+
+
+ GenerationType.SEQUENCE
+The GenerationType.SEQUENCE is my preferred way to generate primary key values and uses a database sequence to generate unique values.
+
+It requires additional select statements to get the next value from a database sequence. But this has no performance impact for most applications. And if your application has to persist a huge number of new entities, you can use some Hibernate specific optimizations to reduce the number of statements.
+
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+
+
+You are here: Home / Hibernate / How to generate primary keys with JPA and Hibernate
+How to generate primary keys with JPA and Hibernate
+By Thorben Janssen 4 Comments
+
+tweet 
+share 
+share 
+share 
+share 
+share 
+e-mail 
+
+
+ 
+
+How do you get the primary key values in your application? Do you use natural keys or do you generate technical IDs?
+
+Don’t want to read? You can watch it here!
+
+
+I prefer to generate simple, numerical, technical IDs like you can see in the following code snippet instead of using natural keys which often require the combination of multiple attributes.
+
+@Id
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+view rawPrimaryKey.java hosted with ❤ by GitHub
+Technical IDs are easier to manage and all involved systems, mainly the database and Hibernate, can index them very efficiently. This allows you to focus on the business logic of your application and avoids performance issues.  
+
+
+
+Join the Thoughts on Java Library
+
+Get free access to:
+
+2 Ebooks about JPA and Hibernate
+More than 50 Cheat Sheets
+More than 60 printable Hibernate Tips
+A 3-Part Video Course about Finding and Fixing N+1 Select Issues
+Signup For Free:
+
+
+Email
+
+Password
+
+Password Confirmation
+JOIN NOW!
+Already a member? Login here.
+
+ 
+
+4 options to generate primary keys
+The JPA specification supports 4 different primary key generation strategies which generate the primary key values programmatically or use database features, like auto-incremented columns or sequences. The only thing you have to do is to add the @GeneratedValue annotation to your primary key attribute and choose a generation strategy.
+@Id
+@GeneratedValue
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+view rawGeneratedValue.java hosted with ❤ by GitHub
+ 
+
+GenerationType.AUTO
+The GenerationType.AUTO is the default generation type and lets the persistence provider choose the generation strategy.
+
+@Id
+@GeneratedValue(strategy = GenerationType.AUTO)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+view rawGenerationTypeAuto.java hosted with ❤ by GitHub
+If you use Hibernate as your persistence provider, it selects a generation strategy based on the database specific dialect. For most popular databases, it selects GenerationType.SEQUENCE which I will explain later.  
+
+ 
+
+Watch it on YouTube
+
+GenerationType.IDENTITY
+The GenerationType.IDENTITY is the easiest to use but not the best one from a performance point of view. It relies on an auto-incremented database column and lets the database generate a new value with each insert operation. From a database point of view, this is very efficient because the auto-increment columns are highly optimized, and it doesn’t require any additional statements.
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+view rawGenerationTypeIdentity.java hosted with ❤ by GitHub
+This approach has a significant drawback if you use Hibernate. Hibernate requires a primary key value for each managed entity and therefore has to perform the insert statement immediately. This prevents it from using different optimization techniques like JDBC batching.
+
+
+
+Join the Thoughts on Java Library
+
+Get free access to:
+
+2 Ebooks about JPA and Hibernate
+More than 50 Cheat Sheets
+More than 60 printable Hibernate Tips
+A 3-Part Video Course about Finding and Fixing N+1 Select Issues
+Signup For Free:
+
+
+Email
+
+Password
+
+Password Confirmation
+JOIN NOW!
+
+Already a member? Login here.
+
+ 
+
+Watch it on YouTube
+
+GenerationType.SEQUENCE
+The GenerationType.SEQUENCE is my preferred way to generate primary key values and uses a database sequence to generate unique values.
+
+It requires additional select statements to get the next value from a database sequence. But this has no performance impact for most applications. And if your application has to persist a huge number of new entities, you can use some Hibernate specific optimizations to reduce the number of statements.
+
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+view rawGenerationTypeSequence.java hosted with ❤ by GitHub
+If you don’t provide any additional information, Hibernate will request the next value from its default sequence. You can change that by referencing the name of a @SequenceGenerator in the generator attribute of the @GeneratedValue annotation. The @SequenceGenerator annotation lets you define the name of the generator, the name, and schema of the database sequence and the allocation size of the sequence.
+
+@Id
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_generator")
+@SequenceGenerator(name="book_generator", sequenceName = "book_seq", allocationSize=50)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+view rawSequenceGenerator.java hosted with ❤ by GitHub
+ 
+
+GenerationType.TABLE
+The GenerationType.TABLE gets only rarely used nowadays. It simulates a sequence by storing and updating its current value in a database table which requires the use of pessimistic locks which put all transactions into a sequential order. This slows down your application, and you should, therefore, prefer the GenerationType.SEQUENCE, if your database supports sequences, which most popular databases do.
+
+@Id
+@GeneratedValue(strategy = GenerationType.TABLE)
+@Column(name = "id", updatable = false, nullable = false)
+private Long id;
+
+Summary
+As you’ve seen, JPA offers 4 different ways to generate primary key values:
+
+AUTO: Hibernate selects the generation strategy based on the used dialect,
+IDENTITY: Hibernate relies on an auto-incremented database column to generate the primary key,
+SEQUENCE: Hibernate requests the primary key value from a database sequence,
+TABLE: Hibernate uses a database table to simulate a sequence.
+I prefer to use the GenerationType.SEQUENCE because it is very efficient and allows Hibernate to decide when to perform the insert statement. This provides the required flexibility to use other performance optimization techniques like JDBC batching.
+When you like to learn more about performance tuning and how Hibernate can optimize the GenerationType.SEQUENCE, have a look at my Hibernate Performance Tuning Online Training.
+
+
+
+
+
+------------in uapadate 
+1- get object from db then change it value then commit 
+2 - createQuery("update statement").executeUpdate(); then commit
+---------------- delete 
+1- get object from db then delete it  then commit 
+2 - createQuery("delete statement").executeUpdate(); then commit
+
+
+ for increase performance of hibernate 
+ 1 - using second level cash or one level cash 
+ 2 - using indexing for increase seaching in db 
+
+ 
+ ----- caching 
+- First Level Cache (aka Transaction layer level cache)
+
+Fetching an object from database always has a cost associated with it. This can be offset by storing the entities in hibernate session. Next time the entities are required, they are fetched from the session, rather than fetching from the database.
+
+To clear an object from the session use: session.evict(object). To clear all the objects from the session use session.clear().
+
+
+Second Level Cache (aka Application layer level cache) using provider for cash 
+
+In this approach, if an object is not found in session, it is searched for in the session factory before querying the database for the object.
+If an object is indeed fetched from database, the selected data should be put in session cache. This would improve the performance when the object is required next time. To remove an entity from session factory use the various overloaded implementations of evict() method of SessionFactory.
+
+In fact, Hibernate lets you tailor your own caching implementation by specifying the name of a class that implements org.hibernate.cache.CacheProvider using the property hibernate.cache.provider_class. But it is recommended to employ a few built-in integrations with open source cache providers (listed below).
+
+
+StatelessSession in Hibernate does not implement first-level cache and it doesn’t interact with any second-level cache. Since it’s stateless, it doesn’t implement transactional write-behind or automatic dirty checking or do cascading operations to associated entities.
+
+However, stateless session can be a good fit in certain situations. For example where we are loading bulk data into database and we don’t want hibernate session to hold huge data in first-level cache memory.
+
+
+if i want to save large data into db  or getting than using StatelessSession becuase it havn't cash 
+else using session 
+
+\There isn't much to say about Stateless Sessions, anyway. Basically, it serves only one purpose: to not cache anything at all.
+
+In regular sessions, Hibernate maintains a "session-level cache", which is cleared when you close your session, for instance. In some other cases, you can plug a caching mechanism to act as a "second level cache", which is complimentary to this "session-level cache" and can survive even after a session is closed.
+
+However, this can be a problem if you are in a batch-operation mode. For instance, it doesn't makes sense to keep any entity in the cache (session-level) if you are just reading an input file and inserting entities in the database. You know you won't need that entity anymore. So, that's where you use the Stateless session.
+
+
+
+
+
+
+
+
+
+
+
+
